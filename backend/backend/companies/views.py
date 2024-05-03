@@ -1,3 +1,15 @@
-from django.shortcuts import render
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
 
-# Create your views here.
+from rest_framework.permissions import IsAuthenticated
+
+from .models import Company
+from .serializers import CompanySerializer
+
+
+
+class CompanyList(generics.ListAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['id']

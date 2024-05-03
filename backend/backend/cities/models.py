@@ -7,7 +7,7 @@ from countries.models import Countries
 
 class Cities(models.Model):
     name = models.CharField(max_length=255)
-    country_code = models.CharField(max_length=10)
+    country_code = models.ForeignKey(Countries, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

@@ -8,5 +8,9 @@ class Countries(models.Model):
     code = models.CharField(max_length=30)
     image = models.URLField()
 
+    @property
+    def get_name(self):
+        return str(self.name)
+
     def __str__(self):
         return self.name
