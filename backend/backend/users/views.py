@@ -2,9 +2,9 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout
 from django.contrib.auth import get_user_model
 
 from .serializers import UserSerializer
@@ -46,6 +46,7 @@ class RegisterUser(APIView):
         user.age = request.data['age']
         user.gender = request.data['gender']
         user.img_url = None if "img_url" not in request.data else request.data['img_url']
+        user.group = "user"
         user.save()
 
         return Response({'message': 'user created'})
@@ -72,10 +73,13 @@ class LoginUser(APIView):
 
 
 
-class AllUsersView(generics.ListAPIView):
-    queryset = get_user_model().objects.all()
-    serializer_class = UserSerializer
+class AllUsersView(APIView):
     permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        users = get_user_model().objects.filter(group="user")
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 
 class GetUserView(APIView):
@@ -83,8 +87,22 @@ class GetUserView(APIView):
     def get(self, request):
 
         if request.user.is_authenticated:
-            serializer = UserSerializer(request.user)
+            if request.user.group == "user":
+                serializer = UserSerializer(request.user)
+            else:
+                return Response({'error': "Not user"}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'error': 'not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response({'user': serializer.data})
+        return Response(serializer.data)
+
+
+
+class LogoutUser(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        logout(request)
+        return Response({'message': 'logged out successfully'}, status=status.HTTP_200_OK)

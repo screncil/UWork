@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from countries.serializers import CountryForCompanySerializer
-from .models import Company
+from django.contrib.auth import get_user_model
 
 
 
@@ -11,5 +10,5 @@ class CompanySerializer(serializers.ModelSerializer):
     city = serializers.StringRelatedField(read_only=True)
 
     class Meta:
-        model = Company
-        fields = ['id', 'name', 'description', 'phone', 'email', 'country', 'city']
+        model = get_user_model()
+        fields = ['id', 'username', 'phone_number', 'email', 'country', 'city', 'address']
