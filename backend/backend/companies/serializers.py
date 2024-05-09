@@ -11,4 +11,4 @@ class CompanySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'phone_number', 'email', 'country', 'city', 'address']
+        fields = ['id', 'username', 'phone_number', 'email', 'country', 'city', 'address', 'img_url']

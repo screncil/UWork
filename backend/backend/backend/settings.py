@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'countries.apps.CountriesConfig',
     'cities.apps.CitiesConfig',
     'users.apps.UsersConfig',
+    'jobs.apps.JobsConfig',
+    'categories.apps.CategoriesConfig',
     'django_filters',
     'djoser',
     'rest_framework.authtoken'

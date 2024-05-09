@@ -1,11 +1,9 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 
-from .models import Company
 from .serializers import CompanySerializer
 
 from countries.models import Countries
@@ -58,7 +56,7 @@ class RegisterCompany(APIView):
         User = get_user_model()
 
         if User.objects.filter(username=request.data["username"]).exists():
-            return Response({'error': 'user already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Company already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.create_user("_".join(request.data['username'].split()), request.data['email'], request.data['password'])
         user.img_url = None if "img_url" not in request.data else request.data['img_url']
