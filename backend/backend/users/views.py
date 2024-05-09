@@ -13,43 +13,30 @@ from .serializers import UserSerializer
 class RegisterUser(APIView):
 
     def post(self, request):
-        if "username" not in request.data:
-            return Response({'error': 'username required'}, status=status.HTTP_400_BAD_REQUEST)
+        lst = []
+        required_fields = ['username', 'password', 'email', 'first_name', 'last_name', 'age', 'gender']
+        for field in required_fields:
+            if field not in request.data:
+                lst.append(field)
 
-        if "password" not in request.data:
-            return Response({'error': 'password required'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(lst) > 0:
+            return Response({"required": lst}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            User = get_user_model()
 
-        if "email" not in request.data:
-            return Response({'error': 'email required'}, status=status.HTTP_400_BAD_REQUEST)
+            if User.objects.filter(username=request.data["username"]).exists():
+                return Response({'error': 'user already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if "first_name" not in request.data:
-            return Response({'error': 'first name required'}, status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.create_user(request.data['username'], request.data['email'], request.data['password'])
+            user.first_name = request.data['first_name']
+            user.last_name = request.data['last_name']
+            user.age = request.data['age']
+            user.gender = request.data['gender']
+            user.img_url = None if "img_url" not in request.data else request.data['img_url']
+            user.group = "user"
+            user.save()
 
-        if "last_name" not in request.data:
-            return Response({'error': 'last name required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if "age" not in request.data:
-            return Response({'error': 'age required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if "gender" not in request.data:
-            return Response({'error': 'gender required'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-        User = get_user_model()
-
-        if User.objects.filter(username=request.data["username"]).exists():
-            return Response({'error': 'user already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.create_user(request.data['username'], request.data['email'], request.data['password'])
-        user.first_name = request.data['first_name']
-        user.last_name = request.data['last_name']
-        user.age = request.data['age']
-        user.gender = request.data['gender']
-        user.img_url = None if "img_url" not in request.data else request.data['img_url']
-        user.group = "user"
-        user.save()
-
-        return Response({'message': 'user created'})
+            return Response({'message': 'user created'})
 
 
 class LoginUser(APIView):
