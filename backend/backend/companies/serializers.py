@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 
 
 
+
 class CompanySerializer(serializers.ModelSerializer):
 
     country = serializers.StringRelatedField(read_only=True)

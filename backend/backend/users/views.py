@@ -42,21 +42,23 @@ class RegisterUser(APIView):
 class LoginUser(APIView):
 
     def post(self, request):
+        lst = []
+        required_fields = ['username', 'password']
+        for field in required_fields:
+            if field not in request.data:
+                lst.append(field)
 
-        if "username" not in request.data:
-            return Response({'error': 'username required'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(lst) > 0:
+            return Response({"required": lst}, status=status.HTTP_400_BAD_REQUEST)
 
-        if "password" not in request.data:
-            return Response({'error': 'password required'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-        user = authenticate(username=request.data['username'], password=request.data['password'])
-
-        if user:
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key})
         else:
-            return Response({'error': 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            user = authenticate(username=request.data['username'], password=request.data['password'])
+
+            if user:
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key})
+            else:
+                return Response({'error': 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 
