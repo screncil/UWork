@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -6,6 +8,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from .serializers import UserSerializer
 
@@ -59,6 +62,26 @@ class LoginUser(APIView):
                 return Response({'token': token.key})
             else:
                 return Response({'error': 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UpdatePhotoUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if "img" in request.data:
+            ext = str(request.data['img']).split(".")[-1]
+            if ext in ["jpg", "jpeg", "png"]:
+                user = get_user_model().objects.get(id=request.user.id)
+                if str(user.img_url) != "":
+                    print(settings.MEDIA_ROOT)
+                    os.remove(os.path.join(settings.MEDIA_ROOT, str(user.img_url)))
+                user.img_url = request.data['img']
+                user.save()
+                return Response({'message': 'photo updated'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'invalid file format'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': 'image required'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
